@@ -6,6 +6,7 @@ st.write("여기까지 보이면 배포 성공입니다.")
 
 import streamlit as st
 import random
+from urllib.parse import quote
 
 # 페이지 설정
 st.set_page_config(
@@ -14,72 +15,61 @@ st.set_page_config(
     layout="centered"
 )
 
-# MBTI별 웹소설 데이터베이스
+# 장르별 색상 (플레이스홀더 이미지 배경색)
+GENRE_COLOR = {
+    "현대판타지": "6C63FF",
+    "게임판타지": "4CAF50",
+    "로맨스판타지": "FF6FA0",
+    "무협": "8B5E3C",
+    "공포/미스터리": "2C2C54",
+    "SF/재난": "1E90FF",
+    "책빙의": "FFA500",
+}
+
+def cover_url(title, genre):
+    color = GENRE_COLOR.get(genre, "6C63FF")
+    text = quote(title)
+    return f"https://placehold.co/500x300/{color}/FFFFFF?text={text}&font=noto-sans-kr"
+
+# 웹소설 데이터베이스 (title, author, genre, desc)
+N = {
+    "전독시": ("전지적 독자 시점", "싱숑", "현대판타지", "치밀한 설계와 전략적 사고가 돋보이는 회귀물의 정점"),
+    "나혼렙": ("나 혼자만 레벨업", "추공", "현대판타지", "체계적으로 성장해나가는 주인공의 압도적 성장기"),
+    "템빨": ("템빨", "박새날", "게임판타지", "분석적으로 파고드는 아이템 헌팅 액션"),
+    "재벌집": ("재벌집 막내아들", "산경", "현대판타지", "치밀한 전략과 야망으로 세상을 뒤집는 회귀 서사"),
+    "달빛조각사": ("달빛조각사", "남희성", "게임판타지", "이상을 향해 묵묵히 나아가는 국민 게임판타지"),
+    "묵향": ("묵향", "전동조", "무협", "감성적이고 낭만적인 무협 판타지의 고전"),
+    "황제외동딸": ("황제의 외동딸", "윤슬", "로맨스판타지", "주변을 이끌고 챙기는 따뜻한 여주의 성장담"),
+    "상수리나무": ("상수리나무 아래", "차소희", "로맨스판타지", "발랄하고 자유로운 영혼의 로맨스 판타지"),
+    "데못죽": ("데뷔 못 하면 죽는 병 걸림", "백덕수", "현대판타지", "데뷔 못 하면 죽는다는 상태창의 협박 속 아이돌 서바이벌 성장기"),
+    "괴담출근": ("괴담에 떨어져도 출근을 해야 하는구나", "백덕수", "공포/미스터리", "괴담 속 규칙을 분석해 위기를 하나씩 돌파해가는 격리 픽션"),
+    "어바등": ("어두운 바다의 등불이 되어", "연산호", "SF/재난", "깊은 바닷속 재난 속에서 등불처럼 빛나는 한 사람의 이야기"),
+    "백망나": ("백작가의 망나니가 되었다", "유려한", "책빙의", "망나니 도련님 몸에 빙의해 재치 있게 위기를 헤쳐가는 이야기"),
+    "어공주": ("어느 날 공주가 되어버렸다", "플루토스", "로맨스판타지", "냉혹한 황제 아빠의 마음을 얻어가는 따뜻한 가족 성장담"),
+    "던디": ("던전 디펜스", "유진성", "게임판타지", "과감하고 실전적인 전략 액션 판타지"),
+    "나노마신": ("나노마신", "한중월야", "게임판타지", "목표를 향해 냉철하게 파고드는 게임 판타지"),
+    "버림황비": ("버림 받은 황비", "정유나", "로맨스판타지", "회귀 후 진짜 행복을 찾아가는 로판계의 교과서적 명작"),
+    "이생가": ("이번 생은 가주가 되겠습니다", "김로아", "로맨스판타지", "환생 후 목표를 향해 똑부러지게 나아가는 성장 로판"),
+}
+
+# MBTI별 추천 (각 2편)
 novel_data = {
-    "INTJ": [
-        {"title": "전지적 독자 시점", "author": "싱숑", "desc": "치밀한 설계와 전략적 사고가 돋보이는 회귀물의 정점"},
-        {"title": "나 혼자만 레벨업", "author": "추공", "desc": "체계적으로 성장해나가는 주인공의 이야기"},
-    ],
-    "INTP": [
-        {"title": "화산귀환", "author": "비가", "desc": "논리적이고 계산적인 두뇌 플레이가 일품"},
-        {"title": "템빨", "author": "박새날", "desc": "분석적으로 파고드는 아이템 헌팅 액션"},
-    ],
-    "ENTJ": [
-        {"title": "재벌집 막내아들", "author": "산경", "desc": "리더십과 야망으로 세상을 뒤집는 이야기"},
-        {"title": "download", "author": "조석", "desc": "목표 지향적인 주인공의 압도적 성장기"},
-    ],
-    "ENTP": [
-        {"title": "김 부장", "author": "박새날", "desc": "기발한 아이디어와 임기응변이 빛나는 코믹 판타지"},
-        {"title": "폭군의 셰프", "author": "제나", "desc": "재치와 창의력으로 위기를 돌파하는 이야기"},
-    ],
-    "INFJ": [
-        {"title": "구원자", "author": "라마르", "desc": "깊은 통찰력과 내면의 성장이 중심인 이야기"},
-        {"title": "달빛조각사", "author": "남희성", "desc": "이상을 향해 묵묵히 나아가는 서사"},
-    ],
-    "INFP": [
-        {"title": "묵향", "author": "전동조", "desc": "감성적이고 낭만적인 무협 판타지의 고전"},
-        {"title": "그 해, 우리는", "author": "웹소설 각색작", "desc": "섬세한 감정선이 돋보이는 힐링 로맨스"},
-    ],
-    "ENFJ": [
-        {"title": "황제의 외동딸", "author": "숙향", "desc": "주변을 이끌고 챙기는 따뜻한 여주의 성장담"},
-        {"title": "버림받은 왕비", "author": "제나", "desc": "공감 능력과 리더십이 돋보이는 로판"},
-    ],
-    "ENFP": [
-        {"title": "상수리나무 아래", "author": "차소희", "desc": "발랄하고 자유로운 영혼의 로맨스 판타지"},
-        {"title": "빙의로판 다수작", "author": "다양한 작가", "desc": "활기찬 에너지가 넘치는 명랑 로판"},
-    ],
-    "ISTJ": [
-        {"title": "무공만빵빵해도 살아남는다", "author": "요람", "desc": "원칙과 성실함으로 차근차근 성장하는 이야기"},
-        {"title": "환생좌", "author": "산경", "desc": "꼼꼼하고 계획적인 인생 설계 판타지"},
-    ],
-    "ISFJ": [
-        {"title": "이상한 변호사 우영우 각색", "author": "웹소설화", "desc": "배려심 깊고 세심한 캐릭터의 성장기"},
-        {"title": "간 떨어지는 동거", "author": "홍짬뽕", "desc": "따뜻하고 배려 가득한 로맨스 판타지"},
-    ],
-    "ESTJ": [
-        {"title": "전무후무", "author": "매지션", "desc": "체계적 관리와 추진력이 돋보이는 기업물"},
-        {"title": "천재소년의 계약결혼", "author": "다양", "desc": "효율적이고 실용적인 문제 해결형 주인공"},
-    ],
-    "ESFJ": [
-        {"title": "공작저의 사냥개", "author": "정연", "desc": "사람들을 챙기고 조율하는 따뜻한 여주"},
-        {"title": "결혼반지는 진심이 아니었습니다", "author": "다양", "desc": "관계 중심의 사랑스러운 로판"},
-    ],
-    "ISTP": [
-        {"title": "SSS급 자살헌터", "author": "박서준", "desc": "실전적이고 효율적인 액션 판타지"},
-        {"title": "레디 플레이어 원 스타일 게임판타지", "author": "다양", "desc": "실용적 문제 해결이 돋보이는 게임 판타지"},
-    ],
-    "ISFP": [
-        {"title": "달빛유령", "author": "박서리", "desc": "조용하지만 감성적인 매력의 판타지"},
-        {"title": "여신강림 각색 로판", "author": "다양", "desc": "예술적 감각과 개성이 돋보이는 이야기"},
-    ],
-    "ESTP": [
-        {"title": "김치찌개용 돼지고기를 사러 왔다가", "author": "산경", "desc": "즉흥적이고 다이나믹한 액션 판타지"},
-        {"title": "던전 디펜스", "author": "유진성", "desc": "과감하고 실전적인 전략 액션"},
-    ],
-    "ESFP": [
-        {"title": "황녀, 반역자를 각인시키다", "author": "다양", "desc": "화려하고 에너지 넘치는 로맨스 판타지"},
-        {"title": "악녀는 마리오네트", "author": "체리핑", "desc": "밝고 사교적인 매력의 로판"},
-    ],
+    "INTJ": ["전독시", "나혼렙"],
+    "INTP": ["괴담출근", "템빨"],
+    "ENTJ": ["재벌집", "던디"],
+    "ENTP": ["백망나", "나노마신"],
+    "INFJ": ["어바등", "달빛조각사"],
+    "INFP": ["묵향", "황제외동딸"],
+    "ENFJ": ["어공주", "이생가"],
+    "ENFP": ["데못죽", "상수리나무"],
+    "ISTJ": ["나혼렙", "재벌집"],
+    "ISFJ": ["버림황비", "어공주"],
+    "ESTJ": ["재벌집", "던디"],
+    "ESFJ": ["이생가", "황제외동딸"],
+    "ISTP": ["괴담출근", "나노마신"],
+    "ISFP": ["어바등", "상수리나무"],
+    "ESTP": ["던디", "백망나"],
+    "ESFP": ["데못죽", "어공주"],
 }
 
 # ---- 스타일 ----
@@ -100,19 +90,29 @@ st.markdown("""
 .novel-card {
     background-color: #F8F7FF;
     border-radius: 16px;
-    padding: 20px;
+    padding: 16px;
     margin-bottom: 15px;
     border: 1px solid #E5E1FF;
 }
 .novel-title {
-    font-size: 1.3em;
+    font-size: 1.25em;
     font-weight: 700;
     color: #4B3F72;
+    margin-top: 8px;
 }
 .novel-author {
     color: #A594F9;
     font-size: 0.9em;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+}
+.novel-genre {
+    display: inline-block;
+    background-color: #E5E1FF;
+    color: #6C63FF;
+    font-size: 0.75em;
+    padding: 2px 10px;
+    border-radius: 12px;
+    margin-bottom: 6px;
 }
 .novel-desc {
     color: #555;
@@ -144,14 +144,18 @@ if st.button("🔮 내 MBTI 웹소설 추천받기", use_container_width=True):
     st.markdown(f"### 당신의 MBTI: **{mbti}**")
     st.write("")
 
-    novels = novel_data.get(mbti, [])
-    if novels:
-        for novel in novels:
+    keys = novel_data.get(mbti, [])
+    if keys:
+        for key in keys:
+            title, author, genre, desc = N[key]
+            img_url = cover_url(title, genre)
+            st.image(img_url, use_container_width=True)
             st.markdown(f"""
             <div class="novel-card">
-                <div class="novel-title">📖 {novel['title']}</div>
-                <div class="novel-author">✍️ {novel['author']}</div>
-                <div class="novel-desc">{novel['desc']}</div>
+                <span class="novel-genre">{genre}</span>
+                <div class="novel-title">📖 {title}</div>
+                <div class="novel-author">✍️ {author}</div>
+                <div class="novel-desc">{desc}</div>
             </div>
             """, unsafe_allow_html=True)
         st.balloons()
