@@ -3,118 +3,161 @@ import streamlit as st
 st.title("첫 배포 확인 👋")
 st.write("여기까지 보이면 배포 성공입니다.")
 
-import streamlit as st
 
+import streamlit as st
+import random
+
+# 페이지 설정
 st.set_page_config(
-    page_title="MBTI 여행지 추천",
-    page_icon="✈️",
-    layout="centered",
+    page_title="MBTI 웹소설 추천",
+    page_icon="📚",
+    layout="centered"
 )
 
-# ---------------- 데이터 ----------------
-MBTI_DATA = {
-    "INTJ": {"emoji": "🧠", "place": "아이슬란드", "desc": "고요한 자연 속에서 깊이 사색할 수 있는 곳이에요. 계획적인 당신에게 완벽한 여정이 될 거예요."},
-    "INTP": {"emoji": "🔭", "place": "스위스 취리히", "desc": "정교하고 지적인 도시. 박물관과 도서관을 자유롭게 탐구할 수 있어요."},
-    "ENTJ": {"emoji": "🏙️", "place": "뉴욕", "desc": "야망과 에너지가 넘치는 도시. 리더십을 발휘하며 새로운 기회를 탐색해보세요."},
-    "ENTP": {"emoji": "💡", "place": "베를린", "desc": "자유롭고 실험적인 분위기. 토론과 새로운 아이디어가 넘치는 도시예요."},
-    "INFJ": {"emoji": "🌸", "place": "교토", "desc": "고요한 사찰과 정원에서 내면의 평화를 찾아보세요."},
-    "INFP": {"emoji": "🎨", "place": "포르투", "desc": "감성적이고 예술적인 골목길. 당신의 상상력을 자극할 도시예요."},
-    "ENFJ": {"emoji": "🤝", "place": "코펜하겐", "desc": "따뜻한 공동체 문화와 사람 중심의 도시 디자인이 인상적이에요."},
-    "ENFP": {"emoji": "🌈", "place": "바르셀로나", "desc": "자유분방하고 창의적인 에너지가 가득한 곳. 즉흥적인 여행이 잘 어울려요."},
-    "ISTJ": {"emoji": "🏛️", "place": "빈", "desc": "전통과 질서가 살아있는 우아한 도시. 체계적인 일정 여행에 딱이에요."},
-    "ISFJ": {"emoji": "🍵", "place": "체코 프라하", "desc": "아늑하고 편안한 분위기. 안정감을 느끼며 여유롭게 둘러보세요."},
-    "ESTJ": {"emoji": "📋", "place": "싱가포르", "desc": "효율적이고 깔끔한 도시. 계획대로 착착 진행되는 여행을 즐길 수 있어요."},
-    "ESFJ": {"emoji": "🎉", "place": "발리", "desc": "사람들과 어울리기 좋은 따뜻한 휴양지. 함께하는 즐거움이 커져요."},
-    "ISTP": {"emoji": "🧗", "place": "뉴질랜드", "desc": "액티비티와 모험이 가득한 대자연. 손으로 직접 부딪히며 즐겨보세요."},
-    "ISFP": {"emoji": "🌿", "place": "발리 우붓", "desc": "자연과 예술이 어우러진 감성적인 공간. 자유로운 영혼에게 어울려요."},
-    "ESTP": {"emoji": "🏄", "place": "호주 골드코스트", "desc": "액티브하고 짜릿한 경험이 가득한 곳. 지금 이 순간을 즐기세요."},
-    "ESFP": {"emoji": "🎊", "place": "리우데자네이루", "desc": "축제 같은 활기찬 분위기. 사람들과 어울리며 신나게 즐겨보세요."},
+# MBTI별 웹소설 데이터베이스
+novel_data = {
+    "INTJ": [
+        {"title": "전지적 독자 시점", "author": "싱숑", "desc": "치밀한 설계와 전략적 사고가 돋보이는 회귀물의 정점"},
+        {"title": "나 혼자만 레벨업", "author": "추공", "desc": "체계적으로 성장해나가는 주인공의 이야기"},
+    ],
+    "INTP": [
+        {"title": "화산귀환", "author": "비가", "desc": "논리적이고 계산적인 두뇌 플레이가 일품"},
+        {"title": "템빨", "author": "박새날", "desc": "분석적으로 파고드는 아이템 헌팅 액션"},
+    ],
+    "ENTJ": [
+        {"title": "재벌집 막내아들", "author": "산경", "desc": "리더십과 야망으로 세상을 뒤집는 이야기"},
+        {"title": "download", "author": "조석", "desc": "목표 지향적인 주인공의 압도적 성장기"},
+    ],
+    "ENTP": [
+        {"title": "김 부장", "author": "박새날", "desc": "기발한 아이디어와 임기응변이 빛나는 코믹 판타지"},
+        {"title": "폭군의 셰프", "author": "제나", "desc": "재치와 창의력으로 위기를 돌파하는 이야기"},
+    ],
+    "INFJ": [
+        {"title": "구원자", "author": "라마르", "desc": "깊은 통찰력과 내면의 성장이 중심인 이야기"},
+        {"title": "달빛조각사", "author": "남희성", "desc": "이상을 향해 묵묵히 나아가는 서사"},
+    ],
+    "INFP": [
+        {"title": "묵향", "author": "전동조", "desc": "감성적이고 낭만적인 무협 판타지의 고전"},
+        {"title": "그 해, 우리는", "author": "웹소설 각색작", "desc": "섬세한 감정선이 돋보이는 힐링 로맨스"},
+    ],
+    "ENFJ": [
+        {"title": "황제의 외동딸", "author": "숙향", "desc": "주변을 이끌고 챙기는 따뜻한 여주의 성장담"},
+        {"title": "버림받은 왕비", "author": "제나", "desc": "공감 능력과 리더십이 돋보이는 로판"},
+    ],
+    "ENFP": [
+        {"title": "상수리나무 아래", "author": "차소희", "desc": "발랄하고 자유로운 영혼의 로맨스 판타지"},
+        {"title": "빙의로판 다수작", "author": "다양한 작가", "desc": "활기찬 에너지가 넘치는 명랑 로판"},
+    ],
+    "ISTJ": [
+        {"title": "무공만빵빵해도 살아남는다", "author": "요람", "desc": "원칙과 성실함으로 차근차근 성장하는 이야기"},
+        {"title": "환생좌", "author": "산경", "desc": "꼼꼼하고 계획적인 인생 설계 판타지"},
+    ],
+    "ISFJ": [
+        {"title": "이상한 변호사 우영우 각색", "author": "웹소설화", "desc": "배려심 깊고 세심한 캐릭터의 성장기"},
+        {"title": "간 떨어지는 동거", "author": "홍짬뽕", "desc": "따뜻하고 배려 가득한 로맨스 판타지"},
+    ],
+    "ESTJ": [
+        {"title": "전무후무", "author": "매지션", "desc": "체계적 관리와 추진력이 돋보이는 기업물"},
+        {"title": "천재소년의 계약결혼", "author": "다양", "desc": "효율적이고 실용적인 문제 해결형 주인공"},
+    ],
+    "ESFJ": [
+        {"title": "공작저의 사냥개", "author": "정연", "desc": "사람들을 챙기고 조율하는 따뜻한 여주"},
+        {"title": "결혼반지는 진심이 아니었습니다", "author": "다양", "desc": "관계 중심의 사랑스러운 로판"},
+    ],
+    "ISTP": [
+        {"title": "SSS급 자살헌터", "author": "박서준", "desc": "실전적이고 효율적인 액션 판타지"},
+        {"title": "레디 플레이어 원 스타일 게임판타지", "author": "다양", "desc": "실용적 문제 해결이 돋보이는 게임 판타지"},
+    ],
+    "ISFP": [
+        {"title": "달빛유령", "author": "박서리", "desc": "조용하지만 감성적인 매력의 판타지"},
+        {"title": "여신강림 각색 로판", "author": "다양", "desc": "예술적 감각과 개성이 돋보이는 이야기"},
+    ],
+    "ESTP": [
+        {"title": "김치찌개용 돼지고기를 사러 왔다가", "author": "산경", "desc": "즉흥적이고 다이나믹한 액션 판타지"},
+        {"title": "던전 디펜스", "author": "유진성", "desc": "과감하고 실전적인 전략 액션"},
+    ],
+    "ESFP": [
+        {"title": "황녀, 반역자를 각인시키다", "author": "다양", "desc": "화려하고 에너지 넘치는 로맨스 판타지"},
+        {"title": "악녀는 마리오네트", "author": "체리핑", "desc": "밝고 사교적인 매력의 로판"},
+    ],
 }
 
-# ---------------- 스타일 ----------------
-st.markdown(
-    """
-    <style>
-    .main {
-        background-color: #FFF9F5;
-    }
-    .title-text {
-        text-align: center;
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #FF6F61;
-        margin-bottom: 0px;
-    }
-    .subtitle-text {
-        text-align: center;
-        color: #8A8A8A;
-        font-size: 1rem;
-        margin-bottom: 30px;
-    }
-    .result-card {
-        background: linear-gradient(135deg, #FFE8E0 0%, #FFF3E9 100%);
-        border-radius: 20px;
-        padding: 30px;
-        text-align: center;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.05);
-        margin-top: 20px;
-    }
-    .result-emoji {
-        font-size: 3rem;
-    }
-    .result-place {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #444444;
-        margin: 10px 0;
-    }
-    .result-desc {
-        font-size: 1rem;
-        color: #666666;
-        line-height: 1.6;
-    }
-    div.stButton > button {
-        background-color: #FF6F61;
-        color: white;
-        border-radius: 12px;
-        padding: 10px 24px;
-        border: none;
-        font-weight: 700;
-        width: 100%;
-    }
-    div.stButton > button:hover {
-        background-color: #FF8A75;
-        color: white;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# ---- 스타일 ----
+st.markdown("""
+<style>
+.main-title {
+    text-align: center;
+    font-size: 2.2em;
+    font-weight: 800;
+    color: #6C63FF;
+    margin-bottom: 0px;
+}
+.sub-title {
+    text-align: center;
+    color: #888;
+    margin-bottom: 30px;
+}
+.novel-card {
+    background-color: #F8F7FF;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid #E5E1FF;
+}
+.novel-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #4B3F72;
+}
+.novel-author {
+    color: #A594F9;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+.novel-desc {
+    color: #555;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# ---------------- 화면 구성 ----------------
-st.markdown('<p class="title-text">✈️ MBTI 여행지 추천</p>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle-text">당신의 MBTI에 딱 맞는 여행지를 찾아드려요 🌍</p>', unsafe_allow_html=True)
+# ---- 헤더 ----
+st.markdown('<div class="main-title">📚 MBTI 웹소설 추천기</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">당신의 MBTI에 딱 맞는 웹소설을 찾아드려요 ✨</div>', unsafe_allow_html=True)
 
-mbti_types = list(MBTI_DATA.keys())
-selected_mbti = st.selectbox("나의 MBTI를 선택해주세요", mbti_types, index=None, placeholder="MBTI 선택 👇")
+st.write("")
 
-if st.button("여행지 추천받기 🎁"):
-    if selected_mbti is None:
-        st.warning("MBTI를 먼저 선택해주세요! 😅")
-    else:
-        info = MBTI_DATA[selected_mbti]
-        st.markdown(
-            f"""
-            <div class="result-card">
-                <div class="result-emoji">{info['emoji']}</div>
-                <div class="result-place">{selected_mbti}님께 추천하는 여행지</div>
-                <div class="result-place" style="color:#FF6F61;">{info['place']}</div>
-                <div class="result-desc">{info['desc']}</div>
+# ---- MBTI 선택 ----
+col1, col2 = st.columns(2)
+with col1:
+    e_i = st.radio("에너지 방향", ["E (외향)", "I (내향)"], horizontal=True)
+    s_n = st.radio("인식 기능", ["S (감각)", "N (직관)"], horizontal=True)
+with col2:
+    t_f = st.radio("판단 기능", ["T (사고)", "F (감정)"], horizontal=True)
+    j_p = st.radio("생활 양식", ["J (판단)", "P (인식)"], horizontal=True)
+
+mbti = e_i[0] + s_n[0] + t_f[0] + j_p[0]
+
+st.write("")
+
+# ---- 추천 버튼 ----
+if st.button("🔮 내 MBTI 웹소설 추천받기", use_container_width=True):
+    st.markdown(f"### 당신의 MBTI: **{mbti}**")
+    st.write("")
+
+    novels = novel_data.get(mbti, [])
+    if novels:
+        for novel in novels:
+            st.markdown(f"""
+            <div class="novel-card">
+                <div class="novel-title">📖 {novel['title']}</div>
+                <div class="novel-author">✍️ {novel['author']}</div>
+                <div class="novel-desc">{novel['desc']}</div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            """, unsafe_allow_html=True)
         st.balloons()
+    else:
+        st.info("아직 준비된 추천작이 없어요! 곧 업데이트할게요 🙏")
 
-st.markdown("<br><br>", unsafe_allow_html=True)
-st.caption("Made with ❤️ using Streamlit")
+st.write("")
+st.markdown("---")
+st.caption("Made with 💜 using Streamlit")
