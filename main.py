@@ -15,6 +15,7 @@ st.set_page_config(
     layout="centered"
 )
 
+
 # 장르별 색상 (플레이스홀더 이미지 배경색)
 GENRE_COLOR = {
     "현대판타지": "6C63FF",
